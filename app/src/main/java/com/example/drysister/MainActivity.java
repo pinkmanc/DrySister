@@ -19,8 +19,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int curPos = 0; //当前显示的是哪一张
     private int page = 1;   //当前页数
     private PictureLoader loader;
-    private
-    UnsplashApi unsplashApi;
+    private UnsplashApi unsplashApi;
+    private UnsplashTask unsplashTask;
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void initData() {
         data = new ArrayList<>();
-        new SisterTask(page).execute();
+        new UnsplashTask(page).execute();
     }
 
     private void initUI() {
@@ -56,16 +56,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         } else if (v.getId() == R.id.btn_refresh) {
             page++;
-            new SisterTask(page).execute();
+            new UnsplashTask(page).execute();
             curPos = 0;
         }
     }
 
-    private class SisterTask extends AsyncTask<Void,Void,ArrayList<Unsplash>> {
+    private class UnsplashTask extends AsyncTask<Void,Void,ArrayList<Unsplash>> {
+
 
         private int page;
 
-        public SisterTask(int page) {
+        public UnsplashTask(int page) {
             this.page = page;
         }
 
@@ -80,6 +81,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             data.clear();
             data.addAll(photos);
         }
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            unsplashTask = null;
+        }
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unsplashTask.cancel(true);
+    }
+
 
 }
