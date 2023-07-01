@@ -15,16 +15,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button refreshBtn;
     private ImageView showImg;
 
-    private ArrayList<Sister> data;
+    private ArrayList<Unsplash> data;
     private int curPos = 0; //当前显示的是哪一张
     private int page = 1;   //当前页数
     private PictureLoader loader;
-    private SisterApi sisterApi;
+    private
+    UnsplashApi unsplashApi;
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        sisterApi = new SisterApi();
+        unsplashApi = new UnsplashApi();
         loader = new PictureLoader();
         initData();
         initUI();
@@ -60,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private class SisterTask extends AsyncTask<Void,Void,ArrayList<Sister>> {
+    private class SisterTask extends AsyncTask<Void,Void,ArrayList<Unsplash>> {
 
         private int page;
 
@@ -69,15 +70,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         @Override
-        protected ArrayList<Sister> doInBackground(Void... params) {
-            return sisterApi.fetchSister(10,page);
+        protected ArrayList<Unsplash> doInBackground(Void... params) {
+            return unsplashApi.fetchPhotos(10);
         }
 
         @Override
-        protected void onPostExecute(ArrayList<Sister> sisters) {
-            super.onPostExecute(sisters);
+        protected void onPostExecute(ArrayList<Unsplash> photos) {
+            super.onPostExecute(photos);
             data.clear();
-            data.addAll(sisters);
+            data.addAll(photos);
         }
     }
 
