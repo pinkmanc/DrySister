@@ -18,7 +18,15 @@
         android:id="@+id/btn_show"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button"
+        android:text="下一个"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/img_show" />
+
+    <Button
+        android:id="@+id/btn_refresh"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="换一批"
+        app:layout_constraintStart_toEndOf="@+id/btn_show"
+        app:layout_constraintTop_toBottomOf="@+id/img_show"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

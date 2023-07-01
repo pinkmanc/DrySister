@@ -2,6 +2,7 @@ package com.example.drysister;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -11,46 +12,73 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private Button showBtn;
+    private Button refreshBtn;
     private ImageView showImg;
-    private ArrayList<String> urls;
-    private int curPos = 0;
+
+    private ArrayList<Sister> data;
+    private int curPos = 0; //当前显示的是哪一张
+    private int page = 1;   //当前页数
     private PictureLoader loader;
+    private SisterApi sisterApi;
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        sisterApi = new SisterApi();
         loader = new PictureLoader();
         initData();
         initUI();
     }
 
     private void initData() {
-        urls = new ArrayList<>();
-        urls.add("http://www.sinaimg.cn/dy/slidenews/4_img/2010_13/828_38733_289934.jpg");
-        urls.add("http://www.sinaimg.cn/dy/slidenews/4_img/2010_13/828_38741_252498.jpg");
-        urls.add("http://www.sinaimg.cn/dy/slidenews/4_img/2010_13/828_38755_184582.jpg");
-        urls.add("http://www.sinaimg.cn/dy/slidenews/4_img/2010_13/828_38763_583765.jpg");
-        urls.add("http://www.sinaimg.cn/dy/slidenews/4_img/2010_13/828_38771_673943.jpg");
-        urls.add("http://www.sinaimg.cn/dy/slidenews/4_img/2010_13/828_38780_708027.jpg");
-        urls.add("http://www.sinaimg.cn/dy/slidenews/4_img/2010_13/828_38789_781933.jpg");
-        urls.add("http://www.sinaimg.cn/dy/slidenews/4_img/2010_13/828_38801_216938.jpg");
-        urls.add("http://www.sinaimg.cn/dy/slidenews/4_img/2010_13/828_38810_491997.jpg");
-        urls.add("http://www.sinaimg.cn/dy/slidenews/4_img/2010_13/828_38821_247072.jpg");
+        data = new ArrayList<>();
+        new SisterTask(page).execute();
     }
 
     private void initUI() {
         showBtn = (Button) findViewById(R.id.btn_show);
+        refreshBtn = (Button) findViewById(R.id.btn_refresh);
         showImg = (ImageView) findViewById(R.id.img_show);
+
         showBtn.setOnClickListener(this);
+        refreshBtn.setOnClickListener(this);
     }
 
     @Override public void onClick(View v) {
         if (v.getId() == R.id.btn_show) {
-            if (curPos > 8) {
-                curPos = 0;
+            if(data != null && !data.isEmpty()) {
+                if (curPos > 9) {
+                    curPos = 0;
+                }
+                loader.load(showImg, data.get(curPos).getUrl());
+                curPos++;
             }
-            loader.load(showImg, urls.get(curPos));
-            curPos++;
+        } else if (v.getId() == R.id.btn_refresh) {
+            page++;
+            new SisterTask(page).execute();
+            curPos = 0;
         }
     }
+
+    private class SisterTask extends AsyncTask<Void,Void,ArrayList<Sister>> {
+
+        private int page;
+
+        public SisterTask(int page) {
+            this.page = page;
+        }
+
+        @Override
+        protected ArrayList<Sister> doInBackground(Void... params) {
+            return sisterApi.fetchSister(10,page);
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Sister> sisters) {
+            super.onPostExecute(sisters);
+            data.clear();
+            data.addAll(sisters);
+        }
+    }
+
 }
